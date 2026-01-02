@@ -1,1 +1,4 @@
 project_id = "logkojvctrqyfkeyycmy"
+
+[functions.recommend-machinery]
+verify_jwt = false

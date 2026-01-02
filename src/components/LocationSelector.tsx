@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MapPin, ChevronDown, Check, Search } from "lucide-react";
+import { MapPin, ChevronDown, Check, Search, Leaf, Droplets, Calendar, Wallet } from "lucide-react";
 
 const indianStates = [
   "Andhra Pradesh", "Assam", "Bihar", "Chhattisgarh", "Gujarat", 
@@ -10,30 +10,73 @@ const indianStates = [
 ];
 
 const crops = [
-  { name: "Rice (धान)", icon: "🌾" },
-  { name: "Wheat (गेहूं)", icon: "🌾" },
-  { name: "Sugarcane (गन्ना)", icon: "🎋" },
-  { name: "Cotton (कपास)", icon: "🌿" },
-  { name: "Maize (मक्का)", icon: "🌽" },
-  { name: "Pulses (दालें)", icon: "🫘" },
+  { name: "Rice (धान)", icon: "🌾", value: "Rice" },
+  { name: "Wheat (गेहूं)", icon: "🌾", value: "Wheat" },
+  { name: "Sugarcane (गन्ना)", icon: "🎋", value: "Sugarcane" },
+  { name: "Cotton (कपास)", icon: "🌿", value: "Cotton" },
+  { name: "Maize (मक्का)", icon: "🌽", value: "Maize" },
+  { name: "Pulses (दालें)", icon: "🫘", value: "Pulses" },
 ];
 
 const soilTypes = [
-  "Alluvial Soil (जलोढ़ मिट्टी)",
-  "Black Soil (काली मिट्टी)", 
-  "Red Soil (लाल मिट्टी)",
-  "Laterite Soil (लेटेराइट मिट्टी)",
-  "Sandy Soil (बलुई मिट्टी)",
+  { name: "Alluvial Soil (जलोढ़ मिट्टी)", value: "Alluvial" },
+  { name: "Black Soil (काली मिट्टी)", value: "Black" },
+  { name: "Red Soil (लाल मिट्टी)", value: "Red" },
+  { name: "Laterite Soil (लेटेराइट मिट्टी)", value: "Laterite" },
+  { name: "Sandy Soil (बलुई मिट्टी)", value: "Sandy" },
 ];
 
-interface LocationSelectorProps {
-  onLocationSelect: (data: { state: string; crop: string; soil: string }) => void;
+const farmSizes = [
+  { name: "Small (1-5 acres)", value: "1-5 acres" },
+  { name: "Medium (5-15 acres)", value: "5-15 acres" },
+  { name: "Large (15-50 acres)", value: "15-50 acres" },
+  { name: "Very Large (50+ acres)", value: "50+ acres" },
+];
+
+const budgetRanges = [
+  { name: "Low (₹200-500/hr)", value: "low" },
+  { name: "Medium (₹500-1500/hr)", value: "medium" },
+  { name: "High (₹1500-3000/hr)", value: "high" },
+  { name: "Premium (₹3000+/hr)", value: "premium" },
+];
+
+const waterSources = [
+  { name: "Canal Irrigation", value: "canal", icon: "💧" },
+  { name: "Tube Well / Bore Well", value: "tubewell", icon: "🔧" },
+  { name: "Rain-fed Only", value: "rainfed", icon: "🌧️" },
+  { name: "Pond / Tank", value: "pond", icon: "🏞️" },
+];
+
+const farmingStages = [
+  { name: "Land Preparation (भूमि तैयारी)", value: "Land Preparation", icon: "🚜" },
+  { name: "Sowing (बुवाई)", value: "Sowing", icon: "🌱" },
+  { name: "Intercultural Operations", value: "Intercultural Operations", icon: "🔄" },
+  { name: "Harvesting (कटाई)", value: "Harvesting", icon: "🌾" },
+];
+
+export interface FarmData {
+  state: string;
+  crop: string;
+  soil: string;
+  farmSize: string;
+  budget: string;
+  waterSource: string;
+  farmingStage: string;
 }
 
-const LocationSelector = ({ onLocationSelect }: LocationSelectorProps) => {
+interface LocationSelectorProps {
+  onLocationSelect: (data: FarmData) => void;
+  isLoading?: boolean;
+}
+
+const LocationSelector = ({ onLocationSelect, isLoading }: LocationSelectorProps) => {
   const [selectedState, setSelectedState] = useState("");
   const [selectedCrop, setSelectedCrop] = useState("");
   const [selectedSoil, setSelectedSoil] = useState("");
+  const [selectedFarmSize, setSelectedFarmSize] = useState("");
+  const [selectedBudget, setSelectedBudget] = useState("");
+  const [selectedWaterSource, setSelectedWaterSource] = useState("");
+  const [selectedFarmingStage, setSelectedFarmingStage] = useState("");
   const [isStateOpen, setIsStateOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -41,12 +84,19 @@ const LocationSelector = ({ onLocationSelect }: LocationSelectorProps) => {
     state.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const isFormValid = selectedState && selectedCrop && selectedSoil && 
+    selectedFarmSize && selectedBudget && selectedWaterSource && selectedFarmingStage;
+
   const handleSubmit = () => {
-    if (selectedState && selectedCrop && selectedSoil) {
+    if (isFormValid) {
       onLocationSelect({
         state: selectedState,
         crop: selectedCrop,
         soil: selectedSoil,
+        farmSize: selectedFarmSize,
+        budget: selectedBudget,
+        waterSource: selectedWaterSource,
+        farmingStage: selectedFarmingStage,
       });
     }
   };
@@ -57,19 +107,19 @@ const LocationSelector = ({ onLocationSelect }: LocationSelectorProps) => {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
             <MapPin className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Smart Selection</span>
+            <span className="text-sm font-medium text-primary">AI-Powered Smart Selection</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Tell Us About Your Farm
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Select your location and farming details for personalized machinery recommendations
+            Provide detailed information for AI-powered personalized machinery recommendations
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="glass-card rounded-2xl p-6 md:p-8 shadow-elevated">
-            <div className="grid md:grid-cols-1 gap-8">
+            <div className="grid md:grid-cols-2 gap-8">
               {/* State Selection */}
               <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground flex items-center gap-2">
@@ -122,24 +172,47 @@ const LocationSelector = ({ onLocationSelect }: LocationSelectorProps) => {
                 </div>
               </div>
 
-              {/* Crop Selection */}
+              {/* Farm Size Selection */}
               <div className="space-y-3">
+                <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Leaf className="w-4 h-4 text-primary" />
+                  Farm Size (खेत का आकार)
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {farmSizes.map((size) => (
+                    <button
+                      key={size.value}
+                      onClick={() => setSelectedFarmSize(size.value)}
+                      className={`px-3 py-2.5 rounded-lg border-2 transition-all duration-200 text-sm ${
+                        selectedFarmSize === size.value
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50 bg-background"
+                      }`}
+                    >
+                      {size.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Crop Selection */}
+              <div className="space-y-3 md:col-span-2">
                 <label className="text-sm font-medium text-foreground">
                   🌾 Select Your Crop (फसल चुनें)
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
                   {crops.map((crop) => (
                     <button
-                      key={crop.name}
-                      onClick={() => setSelectedCrop(crop.name)}
-                      className={`flex items-center gap-2 px-4 py-3 rounded-xl border-2 transition-all duration-200 ${
-                        selectedCrop === crop.name
+                      key={crop.value}
+                      onClick={() => setSelectedCrop(crop.value)}
+                      className={`flex flex-col items-center gap-1 px-3 py-3 rounded-xl border-2 transition-all duration-200 ${
+                        selectedCrop === crop.value
                           ? "border-primary bg-primary/10 shadow-soft"
                           : "border-border hover:border-primary/50 bg-background"
                       }`}
                     >
-                      <span className="text-xl">{crop.icon}</span>
-                      <span className="text-sm font-medium">{crop.name}</span>
+                      <span className="text-2xl">{crop.icon}</span>
+                      <span className="text-xs font-medium text-center">{crop.name}</span>
                     </button>
                   ))}
                 </div>
@@ -150,34 +223,120 @@ const LocationSelector = ({ onLocationSelect }: LocationSelectorProps) => {
                 <label className="text-sm font-medium text-foreground">
                   🏔️ Soil Type (मिट्टी का प्रकार)
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-2">
                   {soilTypes.map((soil) => (
                     <button
-                      key={soil}
-                      onClick={() => setSelectedSoil(soil)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all duration-200 ${
-                        selectedSoil === soil
+                      key={soil.value}
+                      onClick={() => setSelectedSoil(soil.value)}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl border-2 transition-all duration-200 ${
+                        selectedSoil === soil.value
                           ? "border-primary bg-primary/10 shadow-soft"
                           : "border-border hover:border-primary/50 bg-background"
                       }`}
                     >
-                      {selectedSoil === soil && <Check className="w-4 h-4 text-primary" />}
-                      <span className="text-sm font-medium">{soil}</span>
+                      {selectedSoil === soil.value && <Check className="w-4 h-4 text-primary" />}
+                      <span className="text-sm font-medium">{soil.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Water Source */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Droplets className="w-4 h-4 text-primary" />
+                  Water Source (पानी का स्रोत)
+                </label>
+                <div className="space-y-2">
+                  {waterSources.map((source) => (
+                    <button
+                      key={source.value}
+                      onClick={() => setSelectedWaterSource(source.value)}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl border-2 transition-all duration-200 ${
+                        selectedWaterSource === source.value
+                          ? "border-primary bg-primary/10 shadow-soft"
+                          : "border-border hover:border-primary/50 bg-background"
+                      }`}
+                    >
+                      <span className="text-lg">{source.icon}</span>
+                      <span className="text-sm font-medium">{source.name}</span>
+                      {selectedWaterSource === source.value && <Check className="w-4 h-4 text-primary ml-auto" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Farming Stage */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-primary" />
+                  Current Farming Stage (खेती का चरण)
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {farmingStages.map((stage) => (
+                    <button
+                      key={stage.value}
+                      onClick={() => setSelectedFarmingStage(stage.value)}
+                      className={`flex items-center gap-2 px-3 py-3 rounded-xl border-2 transition-all duration-200 ${
+                        selectedFarmingStage === stage.value
+                          ? "border-primary bg-primary/10 shadow-soft"
+                          : "border-border hover:border-primary/50 bg-background"
+                      }`}
+                    >
+                      <span className="text-lg">{stage.icon}</span>
+                      <span className="text-xs font-medium">{stage.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Budget Range */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Wallet className="w-4 h-4 text-primary" />
+                  Budget Range (बजट सीमा)
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {budgetRanges.map((budget) => (
+                    <button
+                      key={budget.value}
+                      onClick={() => setSelectedBudget(budget.value)}
+                      className={`px-3 py-2.5 rounded-lg border-2 transition-all duration-200 text-sm ${
+                        selectedBudget === budget.value
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50 bg-background"
+                      }`}
+                    >
+                      {budget.name}
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Submit Button */}
-              <Button
-                variant="hero"
-                size="xl"
-                className="w-full mt-4"
-                onClick={handleSubmit}
-                disabled={!selectedState || !selectedCrop || !selectedSoil}
-              >
-                Get Machinery Recommendations
-              </Button>
+              <div className="md:col-span-2 mt-4">
+                <Button
+                  variant="hero"
+                  size="xl"
+                  className="w-full"
+                  onClick={handleSubmit}
+                  disabled={!isFormValid || isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="animate-spin mr-2">⚙️</span>
+                      AI Analyzing Your Farm...
+                    </>
+                  ) : (
+                    "Get AI-Powered Recommendations 🤖"
+                  )}
+                </Button>
+                {!isFormValid && (
+                  <p className="text-xs text-muted-foreground text-center mt-2">
+                    Please fill all fields to get accurate recommendations
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>

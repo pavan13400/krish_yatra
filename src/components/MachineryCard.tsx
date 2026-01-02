@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, Fuel, Gauge, Wrench, Calendar } from "lucide-react";
+import { Star, Fuel, Gauge, Wrench, Calendar, CheckCircle, AlertTriangle } from "lucide-react";
 
 interface MachineryCardProps {
   name: string;
-  nameHindi: string;
-  image: string;
+  nameHindi?: string;
+  image?: string;
   category: string;
   rating: number;
   price: string;
@@ -13,8 +13,15 @@ interface MachineryCardProps {
     power: string;
     fuelType: string;
     suitableFor: string;
+    efficiency?: string;
+    fuelConsumption?: string;
+    workingWidth?: string;
   };
   isRecommended?: boolean;
+  matchScore?: number;
+  aiReasons?: string[];
+  warnings?: string[];
+  description?: string;
   onBook: () => void;
 }
 
@@ -27,10 +34,54 @@ const MachineryCard = ({
   price,
   specs,
   isRecommended,
+  matchScore,
+  aiReasons,
+  warnings,
+  description,
   onBook,
 }: MachineryCardProps) => {
+  // Generate a placeholder gradient based on category
+  const getCategoryColor = () => {
+    const colors: Record<string, string> = {
+      "Tractor": "from-green-500/20 to-emerald-500/20",
+      "Harvester": "from-amber-500/20 to-orange-500/20",
+      "Tillage": "from-yellow-500/20 to-lime-500/20",
+      "Seeding": "from-teal-500/20 to-cyan-500/20",
+      "Spraying": "from-blue-500/20 to-indigo-500/20",
+      "Land Preparation": "from-purple-500/20 to-violet-500/20",
+      "Planting": "from-pink-500/20 to-rose-500/20",
+    };
+    return colors[category] || "from-primary/20 to-primary/10";
+  };
+
+  const getCategoryIcon = () => {
+    const icons: Record<string, string> = {
+      "Tractor": "🚜",
+      "Harvester": "🌾",
+      "Tillage": "⚙️",
+      "Seeding": "🌱",
+      "Spraying": "💧",
+      "Land Preparation": "🏗️",
+      "Planting": "🌿",
+    };
+    return icons[category] || "🔧";
+  };
+
   return (
     <div className={`group relative bg-card rounded-2xl overflow-hidden shadow-soft hover:shadow-elevated transition-all duration-300 ${isRecommended ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}>
+      {/* Match Score Badge */}
+      {matchScore !== undefined && (
+        <div className="absolute top-4 right-4 z-10">
+          <div className={`px-2 py-1 rounded-lg text-xs font-bold ${
+            matchScore >= 80 ? "bg-green-500 text-white" :
+            matchScore >= 60 ? "bg-amber-500 text-white" :
+            "bg-muted text-muted-foreground"
+          }`}>
+            {matchScore}% Match
+          </div>
+        </div>
+      )}
+
       {/* Recommended Badge */}
       {isRecommended && (
         <div className="absolute top-4 left-4 z-10">
@@ -40,13 +91,19 @@ const MachineryCard = ({
         </div>
       )}
 
-      {/* Image */}
-      <div className="relative h-48 bg-muted overflow-hidden">
-        <img
-          src={image}
-          alt={name}
-          className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
-        />
+      {/* Image or Placeholder */}
+      <div className={`relative h-48 bg-gradient-to-br ${getCategoryColor()} overflow-hidden flex items-center justify-center`}>
+        {image ? (
+          <img
+            src={image}
+            alt={name}
+            className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="text-6xl group-hover:scale-110 transition-transform duration-300">
+            {getCategoryIcon()}
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-card/20 to-transparent" />
       </div>
 
@@ -59,13 +116,42 @@ const MachineryCard = ({
           </Badge>
           <div className="flex items-center gap-1">
             <Star className="w-4 h-4 fill-accent text-accent" />
-            <span className="text-sm font-medium">{rating}</span>
+            <span className="text-sm font-medium">{rating.toFixed(1)}</span>
           </div>
         </div>
 
         {/* Name */}
         <h3 className="text-lg font-bold text-foreground mb-1">{name}</h3>
-        <p className="text-sm text-muted-foreground mb-4">{nameHindi}</p>
+        {nameHindi && <p className="text-sm text-muted-foreground mb-2">{nameHindi}</p>}
+        
+        {/* Description */}
+        {description && (
+          <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{description}</p>
+        )}
+
+        {/* AI Reasons */}
+        {aiReasons && aiReasons.length > 0 && (
+          <div className="mb-3 space-y-1">
+            {aiReasons.slice(0, 2).map((reason, idx) => (
+              <div key={idx} className="flex items-start gap-1.5 text-xs text-green-600">
+                <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                <span className="line-clamp-1">{reason}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Warnings */}
+        {warnings && warnings.length > 0 && (
+          <div className="mb-3">
+            {warnings.slice(0, 1).map((warning, idx) => (
+              <div key={idx} className="flex items-start gap-1.5 text-xs text-amber-600">
+                <AlertTriangle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                <span className="line-clamp-1">{warning}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Specs */}
         <div className="space-y-2 mb-4">
