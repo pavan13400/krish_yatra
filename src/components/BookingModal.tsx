@@ -8,8 +8,8 @@ interface BookingModalProps {
   onClose: () => void;
   machinery: {
     name: string;
-    nameHindi: string;
-    image: string;
+    nameHindi?: string;
+    image?: string;
     price: string;
   };
 }
