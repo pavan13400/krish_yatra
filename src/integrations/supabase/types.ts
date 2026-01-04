@@ -14,16 +14,227 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      booking_history: {
+        Row: {
+          created_at: string | null
+          crop: string | null
+          farmer_id: string
+          farming_stage: string | null
+          id: string
+          machinery_type: string
+          satisfaction_rating: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          crop?: string | null
+          farmer_id: string
+          farming_stage?: string | null
+          id?: string
+          machinery_type: string
+          satisfaction_rating?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          crop?: string | null
+          farmer_id?: string
+          farming_stage?: string | null
+          id?: string
+          machinery_type?: string
+          satisfaction_rating?: number | null
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          created_at: string | null
+          end_date: string
+          farmer_id: string
+          farmer_phone: string | null
+          id: string
+          machinery_id: string
+          notes: string | null
+          notification_sent: boolean | null
+          reminder_sent: boolean | null
+          start_date: string
+          status: string | null
+          total_amount: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_date: string
+          farmer_id: string
+          farmer_phone?: string | null
+          id?: string
+          machinery_id: string
+          notes?: string | null
+          notification_sent?: boolean | null
+          reminder_sent?: boolean | null
+          start_date: string
+          status?: string | null
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string
+          farmer_id?: string
+          farmer_phone?: string | null
+          id?: string
+          machinery_id?: string
+          notes?: string | null
+          notification_sent?: boolean | null
+          reminder_sent?: boolean | null
+          start_date?: string
+          status?: string | null
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_machinery_id_fkey"
+            columns: ["machinery_id"]
+            isOneToOne: false
+            referencedRelation: "machinery"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      machinery: {
+        Row: {
+          created_at: string | null
+          daily_rate: number
+          description: string | null
+          hourly_rate: number
+          id: string
+          image_url: string | null
+          is_available: boolean | null
+          location_district: string | null
+          location_state: string
+          name: string
+          owner_id: string | null
+          specifications: Json | null
+          suitable_crops: string[] | null
+          suitable_soil_types: string[] | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          daily_rate: number
+          description?: string | null
+          hourly_rate: number
+          id?: string
+          image_url?: string | null
+          is_available?: boolean | null
+          location_district?: string | null
+          location_state: string
+          name: string
+          owner_id?: string | null
+          specifications?: Json | null
+          suitable_crops?: string[] | null
+          suitable_soil_types?: string[] | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          daily_rate?: number
+          description?: string | null
+          hourly_rate?: number
+          id?: string
+          image_url?: string | null
+          is_available?: boolean | null
+          location_district?: string | null
+          location_state?: string
+          name?: string
+          owner_id?: string | null
+          specifications?: Json | null
+          suitable_crops?: string[] | null
+          suitable_soil_types?: string[] | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          district: string | null
+          farm_size_acres: number | null
+          full_name: string
+          id: string
+          phone: string
+          preferred_language: string | null
+          primary_crops: string[] | null
+          state: string
+          updated_at: string | null
+          user_id: string
+          village: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          district?: string | null
+          farm_size_acres?: number | null
+          full_name: string
+          id?: string
+          phone: string
+          preferred_language?: string | null
+          primary_crops?: string[] | null
+          state: string
+          updated_at?: string | null
+          user_id: string
+          village?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          district?: string | null
+          farm_size_acres?: number | null
+          full_name?: string
+          id?: string
+          phone?: string
+          preferred_language?: string | null
+          primary_crops?: string[] | null
+          state?: string
+          updated_at?: string | null
+          user_id?: string
+          village?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "farmer" | "operator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +361,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "farmer", "operator"],
+    },
   },
 } as const
