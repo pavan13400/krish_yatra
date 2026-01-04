@@ -1,16 +1,22 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { X, Clock, Calendar as CalendarIcon, CheckCircle2 } from "lucide-react";
+import { X, Clock, Calendar as CalendarIcon, CheckCircle2, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface BookingModalProps {
   isOpen: boolean;
   onClose: () => void;
   machinery: {
+    id?: string;
     name: string;
     nameHindi?: string;
     image?: string;
     price: string;
+    dailyRate?: number;
   };
 }
 
@@ -25,11 +31,71 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedSlot, setSelectedSlot] = useState("");
   const [isBooked, setIsBooked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  const handleBooking = () => {
-    if (selectedDate && selectedSlot && phoneNumber) {
+  const handleBooking = async () => {
+    if (!selectedDate || !selectedSlot || phoneNumber.length !== 10) return;
+
+    // Check if user is authenticated
+    if (!user) {
+      toast.error("Please login to book machinery");
+      onClose();
+      navigate("/auth");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Calculate end date (same as start for single day booking)
+      const endDate = new Date(selectedDate);
+      
+      // If machinery has an ID (from database), use it; otherwise create without machinery reference
+      const bookingData: any = {
+        farmer_id: user.id,
+        start_date: selectedDate.toISOString().split('T')[0],
+        end_date: endDate.toISOString().split('T')[0],
+        status: 'confirmed',
+        farmer_phone: phoneNumber,
+        notes: `Time slot: ${selectedSlot}`,
+        total_amount: machinery.dailyRate || null,
+      };
+
+      // Only add machinery_id if we have a valid UUID
+      if (machinery.id && machinery.id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        bookingData.machinery_id = machinery.id;
+      }
+
+      const { data: booking, error: bookingError } = await supabase
+        .from("bookings")
+        .insert(bookingData)
+        .select()
+        .single();
+
+      if (bookingError) {
+        console.error("Booking error:", bookingError);
+        throw new Error("Failed to create booking");
+      }
+
+      // Try to send SMS notification (don't fail booking if SMS fails)
+      try {
+        await supabase.functions.invoke("send-sms", {
+          body: {
+            bookingId: booking.id,
+            type: "confirmation",
+          },
+        });
+      } catch (smsError) {
+        console.warn("SMS notification failed:", smsError);
+        // Don't throw - booking was successful even if SMS failed
+      }
+
       setIsBooked(true);
+      toast.success("Booking confirmed! 🎉");
+
       setTimeout(() => {
         setIsBooked(false);
         onClose();
@@ -37,6 +103,12 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
         setSelectedSlot("");
         setPhoneNumber("");
       }, 3000);
+
+    } catch (error) {
+      console.error("Booking failed:", error);
+      toast.error("Failed to create booking. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -84,6 +156,15 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
+
+            {/* Login prompt for non-authenticated users */}
+            {!user && (
+              <div className="mx-6 mt-6 p-4 bg-accent/20 rounded-xl border border-accent">
+                <p className="text-sm text-accent-foreground">
+                  💡 <strong>Tip:</strong> Login to save your bookings and get personalized recommendations.
+                </p>
+              </div>
+            )}
 
             {/* Content */}
             <div className="p-6 space-y-6">
@@ -136,7 +217,7 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
                   type="tel"
                   placeholder="Enter 10-digit mobile number"
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
                   maxLength={10}
                   className="w-full px-4 py-3 rounded-xl border-2 border-border bg-background focus:border-primary focus:outline-none transition-colors"
                 />
@@ -150,9 +231,16 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
                 size="xl"
                 className="w-full"
                 onClick={handleBooking}
-                disabled={!selectedDate || !selectedSlot || phoneNumber.length !== 10}
+                disabled={!selectedDate || !selectedSlot || phoneNumber.length !== 10 || isLoading}
               >
-                Confirm Booking
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Confirming...
+                  </>
+                ) : (
+                  "Confirm Booking"
+                )}
               </Button>
             </div>
           </>
