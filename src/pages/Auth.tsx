@@ -19,6 +19,12 @@ const signupSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   state: z.string().min(1, "Please select a state"),
+  farmSize: z
+    .number({ invalid_type_error: "Enter farm size" })
+    .positive("Farm size must be positive"),
+  primaryCrops: z
+    .array(z.string())
+    .min(1, "Select at least one crop"),
 });
 
 const indianStates = [
@@ -38,6 +44,8 @@ const Auth = () => {
     email: "",
     password: "",
     state: "",
+    farmSize: "",
+    primaryCrops: [] as string[],
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
@@ -63,6 +71,16 @@ const Auth = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
     setErrors(prev => ({ ...prev, [name]: "" }));
   };
+    const cropOptions = [
+    "Rice",
+    "Wheat",
+    "Maize",
+    "Cotton",
+    "Sugarcane",
+    "Pulses",
+    "Vegetables",
+  ];
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,7 +122,10 @@ const Auth = () => {
     setErrors({});
 
     try {
-      signupSchema.parse(formData);
+      signupSchema.parse({
+      ...formData,
+      farmSize: Number(formData.farmSize),
+});
     } catch (err) {
       if (err instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
@@ -119,7 +140,7 @@ const Auth = () => {
     setIsLoading(true);
     const redirectUrl = `${window.location.origin}/`;
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
@@ -128,10 +149,31 @@ const Auth = () => {
           full_name: formData.fullName,
           phone: formData.phone,
           state: formData.state,
+          farm_size_acres: Number(formData.farmSize),
+          primary_crops: formData.primaryCrops,
+          preferred_language: "en",
         },
       },
     });
+    const user = data.user;
+    if (!user) {
+      toast.error("User not created");
+      return;
+    }
 
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({
+        farm_size_acres: Number(formData.farmSize),
+        primary_crops: formData.primaryCrops,
+      })
+      .eq("user_id", user.id);
+
+    if (profileError) {
+      console.error(profileError);
+      toast.error("Profile update failed");
+      return;
+    }
     setIsLoading(false);
     if (error) {
       if (error.message.includes("already registered")) {
@@ -141,7 +183,75 @@ const Auth = () => {
       }
     } else {
       toast.success("Account created successfully! 🎉");
-    }
+      }
+      // ⏳ wait briefly for auth session to be ready
+      // const { data } = await supabase.auth.getUser();
+    //   const user = data.user;
+
+    // if (!user) {
+    //   toast.error("User session not found");
+    //   return;
+    // }
+
+    // // 👤 CREATE PROFILE ROW
+    // const { error: profileError } = await supabase
+    //   .from("profiles")
+    //   .insert({
+    //     user_id: user.id,          // 🔑 PRIMARY KEY
+    //     full_name: formData.fullName,
+    //     phone: formData.phone,
+    //     state: formData.state,
+    //     preferred_language: "en",
+        
+    //   });
+
+    // if (profileError) {
+    //   console.error("Profile insert error:", profileError);
+    //   toast.error("Profile creation failed");
+    //   return;
+    // }
+
+
+
+  //   const { data, error } = await supabase.auth.signUp({
+  //   email: formData.email,
+  //   password: formData.password,
+  //   options: {
+  //     emailRedirectTo: redirectUrl,
+  //   },
+  // });
+
+  // if (error) {
+  //   setIsLoading(false);
+  //   toast.error(error.message);
+  //   return;
+  // }
+
+  // 👇 VERY IMPORTANT PART (CREATE PROFILE)
+  // const user = data.user;
+
+  // if (user) {
+  //   const { error: profileError } = await supabase
+  //     .from("profiles")
+  //     .insert({
+  //       user_id: user.id,
+  //       full_name: formData.fullName,
+  //       phone: formData.phone,
+  //       state: formData.state,
+  //       preferred_language: "en",
+  //     });
+
+  //   if (profileError) {
+  //     console.error("Profile insert error:", profileError);
+  //     toast.error("Profile creation failed");
+  //     setIsLoading(false);
+  //     return;
+  //   }
+  // }
+
+  // setIsLoading(false);
+  // toast.success("Account created successfully! 🎉");
+
   };
 
   return (
@@ -154,7 +264,7 @@ const Auth = () => {
             <Tractor className="w-12 h-12" />
           </div>
           <h1 className="text-4xl font-bold mb-4 text-center">KrishiYantra</h1>
-          <p className="text-xl opacity-90 mb-2">कृषि यंत्र</p>
+          {/* <p className="text-xl opacity-90 mb-2">कृषि यंत्र</p> */}
           <p className="text-center opacity-80 max-w-md mt-8">
             Join thousands of farmers accessing modern machinery for better harvests. 
             AI-powered recommendations tailored to your farm.
@@ -186,7 +296,7 @@ const Auth = () => {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">KrishiYantra</h1>
-              <p className="text-xs text-muted-foreground">कृषि यंत्र</p>
+              {/* <p className="text-xs text-muted-foreground">कृषि यंत्र</p>  */}
             </div>
           </div>
 
@@ -234,7 +344,6 @@ const Auth = () => {
                     />
                     {errors.phone && <p className="text-destructive text-sm mt-1">{errors.phone}</p>}
                   </div>
-
                   <div>
                     <Label htmlFor="state" className="flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-primary" />
@@ -253,6 +362,39 @@ const Auth = () => {
                       ))}
                     </select>
                     {errors.state && <p className="text-destructive text-sm mt-1">{errors.state}</p>}
+                  </div>
+                  <div>
+                      <Label>Farm Size (in acres)</Label>
+                      <Input
+                        type="number"
+                        name="farmSize"
+                        placeholder="Eg: 5"
+                        value={formData.farmSize}
+                        onChange={(e) =>
+                          setFormData({ ...formData, farmSize: e.target.value })
+                        }
+                      />
+                  </div>
+                  <div>
+                    <Label>Primary Crops</Label>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      {cropOptions.map((crop) => (
+                        <label key={crop} className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={formData.primaryCrops.includes(crop)}
+                            onChange={(e) => {
+                              const updated = e.target.checked
+                                ? [...formData.primaryCrops, crop]
+                                : formData.primaryCrops.filter((c) => c !== crop);
+
+                              setFormData({ ...formData, primaryCrops: updated });
+                            }}
+                          />
+                          {crop}
+                        </label>
+                      ))}
+                        </div>
                   </div>
                 </>
               )}

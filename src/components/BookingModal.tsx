@@ -7,8 +7,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
+
 interface BookingModalProps {
-  isOpen: boolean;
+  isOpen: boolean;  
   onClose: () => void;
   machinery: {
     id?: string;
@@ -30,87 +31,149 @@ const timeSlots = [
 const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedSlot, setSelectedSlot] = useState("");
-  const [isBooked, setIsBooked] = useState(false);
+  // const [isBooked, setIsBooked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleBooking = async () => {
-    if (!selectedDate || !selectedSlot || phoneNumber.length !== 10) return;
+    if (!selectedDate || !selectedSlot || phoneNumber.length !== 10) {
+      toast.error("Fill all booking details");
+      return;
+    }
 
-    // Check if user is authenticated
     if (!user) {
-      toast.error("Please login to book machinery");
-      onClose();
-      navigate("/auth");
+      toast.error("Please login to book");
       return;
     }
 
     setIsLoading(true);
 
+    const dateStr = selectedDate.toISOString().split("T")[0];
+    const machineryId = machinery.name; // TEMP ID (later replace with real machine id)
+
     try {
-      // Calculate end date (same as start for single day booking)
-      const endDate = new Date(selectedDate);
-      
-      // If machinery has an ID (from database), use it; otherwise create without machinery reference
-      const bookingData: any = {
-        farmer_id: user.id,
-        start_date: selectedDate.toISOString().split('T')[0],
-        end_date: endDate.toISOString().split('T')[0],
-        status: 'confirmed',
-        farmer_phone: phoneNumber,
-        notes: `Time slot: ${selectedSlot}`,
-        total_amount: machinery.dailyRate || null,
+      const now = new Date().toISOString();
+      // 1️⃣ Check if slot already booked
+      const { data: existingSlot } = await supabase
+        .from("slots")
+        .select("*")
+        .eq("machinery_id", machineryId)
+        .eq("date", dateStr)
+        .eq("time_slot", selectedSlot)
+        .or(`expires_at.is.null,expires_at.gt.${now}`)
+        .maybeSingle();
+
+      if (existingSlot && existingSlot.is_booked) {
+        toast.error("This slot is already booked");
+        setIsLoading(false);
+        return;
+      }
+
+      // 2️⃣ Create or update slot
+      let slotId;
+      const getSlotEndDateTime = (dateStr: string, timeSlot: string) => {
+        // Example: "6:00 AM - 9:00 AM"
+        const endTime = timeSlot.split("-")[1].trim(); // "9:00 AM"
+
+        const dateTimeStr = `${dateStr} ${endTime}`;
+        return new Date(dateTimeStr).toISOString();
       };
 
-      // Only add machinery_id if we have a valid UUID
-      if (machinery.id && machinery.id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
-        bookingData.machinery_id = machinery.id;
-      }
+      const expiresAt = getSlotEndDateTime(dateStr, selectedSlot);
+      if (!existingSlot) {
+        const { data: newSlot, error: slotError } = await supabase
+          .from("slots")
+          .insert({
+            machinery_id: machineryId,
+            date: dateStr,
+            time_slot: selectedSlot,
+            is_booked: true,
+            expires_at: expiresAt,
+          })
+          .select()
+          .single();
 
-      const { data: booking, error: bookingError } = await supabase
-        .from("bookings")
-        .insert(bookingData)
-        .select()
-        .single();
+        if (slotError) throw slotError;
+        slotId = newSlot.id;
+      } else {
+        const { error } = await supabase
+          .from("slots")
+          .update({ is_booked: true
+           ,expires_at: expiresAt,
+           })
+          .eq("id", existingSlot.id);
+
+        if (error) throw error;
+        slotId = existingSlot.id;
+      }
+      // 3️⃣ Create booking (DEBUG VERSION)
+
+    const { data: bookingData, error: bookingError } =
+      await supabase.from("bookings").insert({
+        farmer_id: user.id,
+        slot_id: slotId,
+        machinery_id: machineryId,
+        start_date: dateStr,
+        end_date: dateStr, 
+        time_slot: selectedSlot,
+        farmer_phone: phoneNumber,
+        status: "pending",          // ✅ REQUIRED
+        total_amount: machinery.dailyRate ?? 1200, // ✅ REQUIRED
+      }).select().single();
+
+
+      console.log("BOOKING INSERT RESULT:", bookingData, bookingError);
 
       if (bookingError) {
-        console.error("Booking error:", bookingError);
-        throw new Error("Failed to create booking");
+        throw bookingError;
       }
+      const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-      // Try to send SMS notification (don't fail booking if SMS fails)
-      try {
-        await supabase.functions.invoke("send-sms", {
-          body: {
-            bookingId: booking.id,
-            type: "confirmation",
-          },
-        });
-      } catch (smsError) {
-        console.warn("SMS notification failed:", smsError);
-        // Don't throw - booking was successful even if SMS failed
+    if (!session) {
+      toast.error("Session expired. Please login again.");
+      return;
+    }
+
+
+      const { data, error } = await supabase.functions.invoke(
+      "create-checkout-session",    
+      {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: {
+          bookingId: bookingData.id,
+          amount: bookingData.total_amount,
+          machineryName: machinery.name,
+        },
       }
+    );
 
-      setIsBooked(true);
-      toast.success("Booking confirmed! 🎉");
+    if (error) {
+      throw error;
+    }
+
+    // 🔁 Redirect to Stripe
+    window.location.href = data.url;
 
       setTimeout(() => {
-        setIsBooked(false);
+        // setIsBooked(false);
         onClose();
-        setSelectedDate(undefined);
-        setSelectedSlot("");
-        setPhoneNumber("");
-      }, 3000);
+      }, 2000);
 
-    } catch (error) {
-      console.error("Booking failed:", error);
-      toast.error("Failed to create booking. Please try again.");
-    } finally {
+
+      }catch (err: any) {
+      console.error("BOOKING ERROR:", err);
+      toast.error(err.message || "Booking failed");
+    }finally {
       setIsLoading(false);
     }
-  };
+};
+
 
   if (!isOpen) return null;
 
@@ -122,7 +185,7 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
       {/* Modal */}
       <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-card rounded-2xl shadow-elevated animate-scale-in">
         {/* Success State */}
-        {isBooked ? (
+        {/* {isBooked ? (
           <div className="p-12 text-center">
             <div className="w-20 h-20 rounded-full hero-gradient flex items-center justify-center mx-auto mb-6 animate-scale-in">
               <CheckCircle2 className="w-10 h-10 text-primary-foreground" />
@@ -133,7 +196,8 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
               You will receive a confirmation SMS on {phoneNumber}
             </p>
           </div>
-        ) : (
+        ) : */
+         ( 
           <>
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-border">
@@ -145,7 +209,7 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
                 />
                 <div>
                   <h3 className="text-lg font-bold text-foreground">{machinery.name}</h3>
-                  <p className="text-sm text-muted-foreground">{machinery.nameHindi}</p>
+                  {/* <p className="text-sm text-muted-foreground">{machinery.nameHindi}</p> */}
                   <p className="text-sm font-semibold text-primary">{machinery.price}</p>
                 </div>
               </div>
@@ -172,7 +236,7 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-3">
                   <CalendarIcon className="w-4 h-4 text-primary" />
-                  Select Date (तारीख चुनें)
+                  Select Date 
                 </label>
                 <div className="flex justify-center">
                   <Calendar
@@ -189,7 +253,7 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-3">
                   <Clock className="w-4 h-4 text-primary" />
-                  Select Time Slot (समय चुनें)
+                  Select Time Slot 
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   {timeSlots.map((slot) => (
@@ -211,7 +275,7 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
               {/* Phone Number */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-3">
-                  📱 Phone Number (फोन नंबर)
+                  📱 Phone Number
                 </label>
                 <input
                   type="tel"
@@ -236,10 +300,10 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Confirming...
+                     Redirecting to payment…
                   </>
                 ) : (
-                  "Confirm Booking"
+                   "Book Slot & Pay"
                 )}
               </Button>
             </div>

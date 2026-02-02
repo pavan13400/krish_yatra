@@ -4,37 +4,37 @@ const features = [
   {
     icon: MapPin,
     title: "Location-Based",
-    titleHindi: "स्थान आधारित",
+    // titleHindi: "स्थान आधारित",
     description: "Get recommendations based on your exact location, soil type, and weather conditions.",
   },
   {
     icon: Brain,
     title: "AI-Powered",
-    titleHindi: "AI संचालित",
+    // titleHindi: "AI संचालित",
     description: "Smart machine learning algorithms analyze your needs to suggest the perfect machinery.",
   },
   {
     icon: Calendar,
     title: "Easy Booking",
-    titleHindi: "आसान बुकिंग",
+    // titleHindi: "आसान बुकिंग",
     description: "Book time slots instantly with our simple calendar interface. No hassle, no waiting.",
   },
   {
     icon: Shield,
     title: "Verified Machines",
-    titleHindi: "सत्यापित मशीनें",
+    // titleHindi: "सत्यापित मशीनें",
     description: "All machinery is quality-checked and well-maintained for optimal performance.",
   },
   {
     icon: Clock,
     title: "Real-time Availability",
-    titleHindi: "वास्तविक समय उपलब्धता",
+    // titleHindi: "वास्तविक समय उपलब्धता",
     description: "Check live availability and book slots that work best for your farming schedule.",
   },
   {
     icon: Headphones,
     title: "24/7 Support",
-    titleHindi: "24/7 सहायता",
+    // titleHindi: "24/7 सहायता",
     description: "Get help anytime in your preferred language - Hindi, English, or regional languages.",
   },
 ];
@@ -63,7 +63,7 @@ const FeaturesSection = () => {
                 <feature.icon className="w-7 h-7 text-primary-foreground" />
               </div>
               <h3 className="text-lg font-bold text-foreground mb-1">{feature.title}</h3>
-              <p className="text-sm text-primary font-medium mb-2">{feature.titleHindi}</p>
+              {/* <p className="text-sm text-primary font-medium mb-2">{feature.titleHindi}</p> */}
               <p className="text-sm text-muted-foreground">{feature.description}</p>
             </div>
           ))}
@@ -72,5 +72,5 @@ const FeaturesSection = () => {
     </section>
   );
 };
-
+  
 export default FeaturesSection;

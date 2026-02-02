@@ -122,7 +122,7 @@ const MachineryCard = ({
 
         {/* Name */}
         <h3 className="text-lg font-bold text-foreground mb-1">{name}</h3>
-        {nameHindi && <p className="text-sm text-muted-foreground mb-2">{nameHindi}</p>}
+        {/* {nameHindi && <p className="text-sm text-muted-foreground mb-2">{nameHindi}</p>} */}
         
         {/* Description */}
         {description && (

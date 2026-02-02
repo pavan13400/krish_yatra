@@ -37,9 +37,9 @@ const HeroSection = () => {
           </p>
 
           {/* Hindi tagline */}
-          <p className="text-base text-secondary font-medium mb-8 animate-fade-in" style={{ animationDelay: "0.25s" }}>
+          {/* <p className="text-base text-secondary font-medium mb-8 animate-fade-in" style={{ animationDelay: "0.25s" }}>
             आपके खेत के लिए सही यंत्र, सही समय पर
-          </p>
+          </p> */}
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 mb-12 animate-fade-in" style={{ animationDelay: "0.3s" }}>

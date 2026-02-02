@@ -184,7 +184,7 @@ const MachineryResults = ({ aiResponse, isLoading, error }: MachineryResultsProp
             >
               <MachineryCard
                 name={machinery.name}
-                nameHindi={machinery.nameHindi}
+                // nameHindi={machinery.nameHindi}
                 category={machinery.category}
                 rating={machinery.matchScore / 20}
                 price={machinery.price}
@@ -213,7 +213,7 @@ const MachineryResults = ({ aiResponse, isLoading, error }: MachineryResultsProp
             onClose={() => setIsBookingOpen(false)}
             machinery={{
               name: selectedMachinery.name,
-              nameHindi: selectedMachinery.nameHindi,
+              // nameHindi: selectedMachinery.nameHindi,
               price: selectedMachinery.price,
             }}
           />

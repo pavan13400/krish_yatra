@@ -10,20 +10,20 @@ const indianStates = [
 ];
 
 const crops = [
-  { name: "Rice (धान)", icon: "🌾", value: "Rice" },
-  { name: "Wheat (गेहूं)", icon: "🌾", value: "Wheat" },
-  { name: "Sugarcane (गन्ना)", icon: "🎋", value: "Sugarcane" },
-  { name: "Cotton (कपास)", icon: "🌿", value: "Cotton" },
-  { name: "Maize (मक्का)", icon: "🌽", value: "Maize" },
-  { name: "Pulses (दालें)", icon: "🫘", value: "Pulses" },
+  { name: "Rice", icon: "🌾", value: "Rice" },
+  { name: "Wheat", icon: "🌾", value: "Wheat" },
+  { name: "Sugarcane", icon: "🎋", value: "Sugarcane" },
+  { name: "Cotton", icon: "🌿", value: "Cotton" },
+  { name: "Maize", icon: "🌽", value: "Maize" },
+  { name: "Pulses", icon: "🫘", value: "Pulses" },
 ];
 
 const soilTypes = [
-  { name: "Alluvial Soil (जलोढ़ मिट्टी)", value: "Alluvial" },
-  { name: "Black Soil (काली मिट्टी)", value: "Black" },
-  { name: "Red Soil (लाल मिट्टी)", value: "Red" },
-  { name: "Laterite Soil (लेटेराइट मिट्टी)", value: "Laterite" },
-  { name: "Sandy Soil (बलुई मिट्टी)", value: "Sandy" },
+  { name: "Alluvial Soil", value: "Alluvial" },
+  { name: "Black Soil", value: "Black" },
+  { name: "Red Soil", value: "Red" },
+  { name: "Laterite Soil", value: "Laterite" },
+  { name: "Sandy Soil", value: "Sandy" },
 ];
 
 const farmSizes = [
@@ -48,10 +48,10 @@ const waterSources = [
 ];
 
 const farmingStages = [
-  { name: "Land Preparation (भूमि तैयारी)", value: "Land Preparation", icon: "🚜" },
-  { name: "Sowing (बुवाई)", value: "Sowing", icon: "🌱" },
+  { name: "Land Preparation ", value: "Land Preparation", icon: "🚜" },
+  { name: "Sowing", value: "Sowing", icon: "🌱" },
   { name: "Intercultural Operations", value: "Intercultural Operations", icon: "🔄" },
-  { name: "Harvesting (कटाई)", value: "Harvesting", icon: "🌾" },
+  { name: "Harvesting", value: "Harvesting", icon: "🌾" },
 ];
 
 export interface FarmData {
@@ -124,7 +124,7 @@ const LocationSelector = ({ onLocationSelect, isLoading }: LocationSelectorProps
               <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-primary" />
-                  Select Your State (राज्य चुनें)
+                  Select Your State
                 </label>
                 <div className="relative">
                   <button
@@ -176,7 +176,7 @@ const LocationSelector = ({ onLocationSelect, isLoading }: LocationSelectorProps
               <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground flex items-center gap-2">
                   <Leaf className="w-4 h-4 text-primary" />
-                  Farm Size (खेत का आकार)
+                  Farm Size
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {farmSizes.map((size) => (
@@ -198,7 +198,7 @@ const LocationSelector = ({ onLocationSelect, isLoading }: LocationSelectorProps
               {/* Crop Selection */}
               <div className="space-y-3 md:col-span-2">
                 <label className="text-sm font-medium text-foreground">
-                  🌾 Select Your Crop (फसल चुनें)
+                  🌾 Select Your Crop
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
                   {crops.map((crop) => (
@@ -221,7 +221,7 @@ const LocationSelector = ({ onLocationSelect, isLoading }: LocationSelectorProps
               {/* Soil Type Selection */}
               <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground">
-                  🏔️ Soil Type (मिट्टी का प्रकार)
+                  🏔️ Soil Type
                 </label>
                 <div className="space-y-2">
                   {soilTypes.map((soil) => (
@@ -245,7 +245,7 @@ const LocationSelector = ({ onLocationSelect, isLoading }: LocationSelectorProps
               <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground flex items-center gap-2">
                   <Droplets className="w-4 h-4 text-primary" />
-                  Water Source (पानी का स्रोत)
+                  Water Source
                 </label>
                 <div className="space-y-2">
                   {waterSources.map((source) => (
@@ -270,7 +270,7 @@ const LocationSelector = ({ onLocationSelect, isLoading }: LocationSelectorProps
               <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-primary" />
-                  Current Farming Stage (खेती का चरण)
+                  Current Farming Stage
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {farmingStages.map((stage) => (
@@ -294,7 +294,7 @@ const LocationSelector = ({ onLocationSelect, isLoading }: LocationSelectorProps
               <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground flex items-center gap-2">
                   <Wallet className="w-4 h-4 text-primary" />
-                  Budget Range (बजट सीमा)
+                  Budget Range
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {budgetRanges.map((budget) => (

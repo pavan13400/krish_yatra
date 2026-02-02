@@ -28,10 +28,9 @@ interface Booking {
   status: string;
   total_amount: number | null;
   notes: string | null;
-  machinery: {
-    name: string;
-    type: string;
-    image_url: string | null;
+  slots: {
+    date: string;
+    time_slot: string;
   } | null;
 }
 
@@ -100,19 +99,18 @@ const Dashboard = () => {
         status,
         total_amount,
         notes,
-        machinery (
-          name,
-          type,
-          image_url
-        )
+        machinery_id,
+        time_slot
       `)
       .eq("farmer_id", user.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .returns<Booking[]>();
 
+    console.log("Fetched bookings:", data);
     if (error) {
       console.error("Error fetching bookings:", error);
     } else {
-      setBookings(data || []);
+      setBookings(data ?? []);
     }
   };
 
@@ -278,24 +276,28 @@ const Dashboard = () => {
                     className="bg-card rounded-xl p-4 shadow-soft border border-border flex items-center gap-4"
                   >
                     <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
-                      {booking.machinery?.image_url ? (
+                      {/* {booking.machinery?.image_url ? (
                         <img
+                          alt={booking.machinery.name}  
                           src={booking.machinery.image_url}
-                          alt={booking.machinery.name}
                           className="w-12 h-12 object-contain"
                         />
-                      ) : (
+                      ) : 
+                      (
                         <Tractor className="w-8 h-8 text-muted-foreground" />
-                      )}
+                      )} */}
+                      <Tractor className="w-8 h-8 text-muted-foreground" />
+                      <Calendar className="w-8 h-8 text-muted-foreground" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-semibold text-foreground">
-                        {booking.machinery?.name || "Machinery"}
+                        {booking.slots?.date || "Machinery"}
                       </h4>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {new Date(booking.start_date).toLocaleDateString()} - {new Date(booking.end_date).toLocaleDateString()}
+                          {/* {new Date(booking.start_date).toLocaleDateString()} - {new Date(booking.end_date).toLocaleDateString()} */}
+                          {booking.slots?.date} | {booking.slots?.time_slot}
                         </span>
                         {booking.total_amount && (
                           <span>₹{booking.total_amount}</span>

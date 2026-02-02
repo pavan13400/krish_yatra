@@ -34,7 +34,6 @@ const Header = () => {
             </div>
             <div className="flex flex-col">
               <span className="text-lg font-bold text-foreground leading-tight">KrishiYantra</span>
-              <span className="text-xs text-muted-foreground leading-none">कृषि यंत्र</span>
             </div>
           </Link>
 
@@ -58,9 +57,10 @@ const Header = () => {
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/dashboard">
                     <User className="w-4 h-4 mr-1" />
-                    Dashboard
+                    My Bookings
                   </Link>
                 </Button>
+
                 <Button variant="outline" size="sm" onClick={handleLogout}>
                   <LogOut className="w-4 h-4 mr-1" />
                   Logout
@@ -109,7 +109,7 @@ const Header = () => {
                 {user ? (
                   <>
                     <Button variant="outline" size="lg" className="w-full" asChild>
-                      <Link to="/dashboard">Dashboard</Link>
+                      <Link to="/dashboard">My Bookings</Link>
                     </Button>
                     <Button variant="ghost" size="lg" className="w-full" onClick={handleLogout}>
                       Logout

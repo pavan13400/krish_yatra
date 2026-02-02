@@ -9,6 +9,9 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import Predict from "./pages/Predict";
+import MyBookings from "@/pages/MyBookings";
+import PaymentSuccess from "@/pages/PaymentSuccess";
+
 
 
 const queryClient = new QueryClient();
@@ -27,6 +30,8 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="/dashboard/predict" element={<Predict />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/my-bookings" element={<MyBookings />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

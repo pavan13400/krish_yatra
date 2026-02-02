@@ -13,7 +13,7 @@ const Footer = () => {
               </div>
               <div>
                 <span className="text-lg font-bold leading-tight">KrishiYantra</span>
-                <p className="text-xs opacity-70">कृषि यंत्र</p>
+                {/* <p className="text-xs opacity-70">कृषि यंत्र</p> */}
               </div>
             </div>
             <p className="text-sm opacity-70">
@@ -49,22 +49,22 @@ const Footer = () => {
             <ul className="space-y-3 text-sm opacity-70">
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4" />
-                <span>1800-XXX-XXXX (Toll Free)</span>
+                <span>720-739-1124</span>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
-                <span>support@krishiyantra.in</span>
+                <span>support@boyapavankumar6@gmail.com</span>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 mt-0.5" />
-                <span>New Delhi, India</span>
+                <span>Hyderbad, India</span>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="pt-8 border-t border-background/20 text-center text-sm opacity-70">
-          <p>© 2026 KrishiYantra. All rights reserved. Made with ❤️ for Indian Farmers</p>
+          <p>© 2026 KrishiYantra. All rights reserved. Made with Love for Indian Farmers</p>
         </div>
       </div>
     </footer>
