@@ -160,7 +160,7 @@ const Dashboard = () => {
         <div className="max-w-4xl mx-auto">
           {/* Welcome Section */}
           <div className="bg-card rounded-2xl p-6 mb-8 shadow-soft border border-border">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <div className="w-16 h-16 rounded-full hero-gradient flex items-center justify-center">
                 <User className="w-8 h-8 text-primary-foreground" />
               </div>
@@ -176,7 +176,7 @@ const Dashboard = () => {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-2 mb-6">
+          <div className="flex flex-wrap gap-2 mb-6">
             <button
               onClick={() => setActiveTab("profile")}
               className={`px-6 py-3 rounded-xl font-medium transition-all ${
@@ -258,7 +258,7 @@ const Dashboard = () => {
           ) : (
             <div className="space-y-4">
               {bookings.length === 0 ? (
-                <div className="bg-card rounded-2xl p-12 text-center shadow-soft border border-border">
+                <div className="bg-card rounded-2xl p-8 sm:p-12 text-center shadow-soft border border-border">
                   <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-foreground mb-2">No bookings yet</h3>
                   <p className="text-muted-foreground mb-6">
@@ -273,7 +273,7 @@ const Dashboard = () => {
                 bookings.map((booking) => (
                   <div
                     key={booking.id}
-                    className="bg-card rounded-xl p-4 shadow-soft border border-border flex items-center gap-4"
+                    className="bg-card rounded-xl p-4 shadow-soft border border-border flex flex-col sm:flex-row items-start sm:items-center gap-4"
                   >
                     <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
                       {/* {booking.machinery?.image_url ? (
@@ -293,7 +293,7 @@ const Dashboard = () => {
                       <h4 className="font-semibold text-foreground">
                         {booking.slots?.date || "Machinery"}
                       </h4>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                      <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mt-1">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {/* {new Date(booking.start_date).toLocaleDateString()} - {new Date(booking.end_date).toLocaleDateString()} */}

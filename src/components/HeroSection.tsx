@@ -4,7 +4,7 @@ import heroImage from "@/assets/hero-farm.jpg";
 
 const HeroSection = () => {
   return (
-    <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
+    <section id="home" className="relative min-h-[80vh] flex items-start md:items-center overflow-hidden">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -14,7 +14,7 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
       </div>
 
-      <div className="container mx-auto px-4 pt-20 relative z-10">
+      <div className="container mx-auto px-4 pt-24 pb-16 relative z-10">
         <div className="max-w-3xl">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 animate-fade-in">
@@ -42,7 +42,7 @@ const HeroSection = () => {
           </p> */}
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-12 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+          <div className="flex flex-col sm:flex-row gap-4 mb-10 animate-fade-in" style={{ animationDelay: "0.3s" }}>
             <Button variant="hero" size="xl" className="group">
               <MapPin className="w-5 h-5" />
               Select Your Location
@@ -54,7 +54,7 @@ const HeroSection = () => {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-6 max-w-lg animate-fade-in" style={{ animationDelay: "0.4s" }}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 max-w-xs sm:max-w-md animate-fade-in" style={{ animationDelay: "0.4s" }}>
             {[
               { value: "500+", label: "Machines" },
               { value: "15K+", label: "Farmers" },

@@ -14,13 +14,22 @@ const MyBookings = () => {
       fetchBookings();
     }
   }, [user]);
-
   const fetchBookings = async () => {
     setLoading(true);
 
     const { data, error } = await supabase
       .from("bookings")
-      .select("*")
+      .select(`
+        id,
+        start_date,
+        time_slot,
+        status,
+        machinery:machinery_id (
+          name,
+          price,
+          category
+        )
+      `)
       .eq("farmer_id", user!.id)
       .order("created_at", { ascending: false });
 
@@ -57,8 +66,10 @@ const MyBookings = () => {
             <Card key={booking.id}>
               <CardContent className="p-5 space-y-2">
                 <p className="font-semibold">
-                  🚜 Machine: {booking.machinery_id}
+                  🚜 Machine: {booking.machinery.name}
                 </p>
+                <p className="font-semibold"> Category : {booking.machinery.category} </p>
+                <p className="font-semibold"> Price : {booking.machinery.price} </p>
                 <p>📅 Date: {booking.start_date}</p>
                 <p>⏰ Time: {booking.time_slot}</p>
                 <p className="text-sm text-muted-foreground">

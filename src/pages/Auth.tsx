@@ -259,17 +259,17 @@ const Auth = () => {
       {/* Left Panel - Branding */}
       <div className="hidden lg:flex lg:w-1/2 hero-gradient relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent" />
-        <div className="relative z-10 flex flex-col justify-center items-center p-12 text-primary-foreground">
+        <div className="relative z-10 flex flex-col justify-center items-center px-8 py-12 xl:p-12 text-primary-foreground">
           <div className="w-20 h-20 rounded-2xl bg-primary-foreground/20 flex items-center justify-center mb-8">
             <Tractor className="w-12 h-12" />
           </div>
           <h1 className="text-4xl font-bold mb-4 text-center">KrishiYantra</h1>
           {/* <p className="text-xl opacity-90 mb-2">कृषि यंत्र</p> */}
-          <p className="text-center opacity-80 max-w-md mt-8">
+          <p className="text-center opacity-80 max-w-md mt-6">
             Join thousands of farmers accessing modern machinery for better harvests. 
             AI-powered recommendations tailored to your farm.
           </p>
-          <div className="mt-12 grid grid-cols-3 gap-8 text-center">
+          <div className="mt-10 grid grid-cols-2 md:grid-cols-3 gap-6 text-center">
             <div>
               <p className="text-3xl font-bold">5000+</p>
               <p className="text-sm opacity-80">Farmers</p>
@@ -287,7 +287,7 @@ const Auth = () => {
       </div>
 
       {/* Right Panel - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-8 py-8">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
@@ -300,7 +300,7 @@ const Auth = () => {
             </div>
           </div>
 
-          <div className="bg-card rounded-2xl p-8 shadow-elevated border border-border">
+          <div className="bg-card rounded-2xl p-6 sm:p-8 shadow-elevated border border-border">
             <h2 className="text-2xl font-bold text-foreground mb-2">
               {isLogin ? "Welcome Back!" : "Create Account"}
             </h2>

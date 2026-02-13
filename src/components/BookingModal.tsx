@@ -51,7 +51,8 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
     setIsLoading(true);
 
     const dateStr = selectedDate.toISOString().split("T")[0];
-    const machineryId = machinery.name; // TEMP ID (later replace with real machine id)
+    // Use machinery name as a simple key for slots (slots.machinery_id is TEXT)
+    const slotMachineryKey = machinery.name;
 
     try {
       const now = new Date().toISOString();
@@ -59,7 +60,7 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
       const { data: existingSlot } = await supabase
         .from("slots")
         .select("*")
-        .eq("machinery_id", machineryId)
+        .eq("machinery_id", slotMachineryKey)
         .eq("date", dateStr)
         .eq("time_slot", selectedSlot)
         .or(`expires_at.is.null,expires_at.gt.${now}`)
@@ -86,7 +87,7 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
         const { data: newSlot, error: slotError } = await supabase
           .from("slots")
           .insert({
-            machinery_id: machineryId,
+            machinery_id: slotMachineryKey,
             date: dateStr,
             time_slot: selectedSlot,
             is_booked: true,
@@ -108,20 +109,21 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
         if (error) throw error;
         slotId = existingSlot.id;
       }
-      // 3️⃣ Create booking (DEBUG VERSION)
-
-    const { data: bookingData, error: bookingError } =
-      await supabase.from("bookings").insert({
+      // 3️⃣ Create booking
+      const bookingInsert: Record<string, any> = {
         farmer_id: user.id,
         slot_id: slotId,
-        machinery_id: machineryId,
         start_date: dateStr,
         end_date: dateStr, 
         time_slot: selectedSlot,
         farmer_phone: phoneNumber,
         status: "pending",          // ✅ REQUIRED
         total_amount: machinery.dailyRate ?? 1200, // ✅ REQUIRED
-      }).select().single();
+        notes: machinery.name,      // store machinery name for reference
+      };
+
+      const { data: bookingData, error: bookingError } =
+        await supabase.from("bookings").insert(bookingInsert).select().single();
 
 
       console.log("BOOKING INSERT RESULT:", bookingData, bookingError);
