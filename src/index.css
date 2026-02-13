@@ -1,0 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  :root {
+    /* Earthy Agricultural Theme */
+    --background: 45 30% 97%;
+    --foreground: 25 30% 15%;
+
+    --card: 45 40% 98%;
+    --card-foreground: 25 30% 15%;
+
+    --popover: 45 40% 98%;
+    --popover-foreground: 25 30% 15%;
+
+    /* Primary: Lush Green */
+    --primary: 142 55% 35%;
+    --primary-foreground: 45 40% 98%;
+
+    /* Secondary: Terracotta Earth */
+    --secondary: 25 45% 55%;
+    --secondary-foreground: 45 40% 98%;
+
+    /* Muted: Soft Sage */
+    --muted: 100 20% 90%;
+    --muted-foreground: 25 20% 40%;
+
+    /* Accent: Golden Harvest */
+    --accent: 42 85% 55%;
+    --accent-foreground: 25 30% 15%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 45 40% 98%;
+
+    --border: 45 25% 85%;
+    --input: 45 25% 85%;
+    --ring: 142 55% 35%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens */
+    --gradient-hero: linear-gradient(135deg, hsl(142 55% 35%), hsl(142 45% 28%));
+    --gradient-golden: linear-gradient(135deg, hsl(42 85% 55%), hsl(35 80% 50%));
+    --gradient-earth: linear-gradient(135deg, hsl(25 45% 55%), hsl(20 40% 45%));
+    --shadow-soft: 0 4px 20px -4px hsl(25 30% 15% / 0.1);
+    --shadow-elevated: 0 12px 40px -8px hsl(25 30% 15% / 0.15);
+    --shadow-glow: 0 0 40px hsl(142 55% 35% / 0.2);
+
+    --sidebar-background: 45 30% 97%;
+    --sidebar-foreground: 25 30% 15%;
+    --sidebar-primary: 142 55% 35%;
+    --sidebar-primary-foreground: 45 40% 98%;
+    --sidebar-accent: 100 20% 90%;
+    --sidebar-accent-foreground: 25 30% 15%;
+    --sidebar-border: 45 25% 85%;
+    --sidebar-ring: 142 55% 35%;
+  }
+
+  .dark {
+    --background: 25 25% 10%;
+    --foreground: 45 30% 95%;
+
+    --card: 25 25% 14%;
+    --card-foreground: 45 30% 95%;
+
+    --popover: 25 25% 14%;
+    --popover-foreground: 45 30% 95%;
+
+    --primary: 142 50% 45%;
+    --primary-foreground: 25 25% 10%;
+
+    --secondary: 25 40% 45%;
+    --secondary-foreground: 45 30% 95%;
+
+    --muted: 25 20% 20%;
+    --muted-foreground: 45 20% 65%;
+
+    --accent: 42 80% 50%;
+    --accent-foreground: 25 25% 10%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 45 30% 95%;
+
+    --border: 25 20% 22%;
+    --input: 25 20% 22%;
+    --ring: 142 50% 45%;
+
+    --sidebar-background: 25 25% 10%;
+    --sidebar-foreground: 45 30% 95%;
+    --sidebar-primary: 142 50% 45%;
+    --sidebar-primary-foreground: 25 25% 10%;
+    --sidebar-accent: 25 20% 20%;
+    --sidebar-accent-foreground: 45 30% 95%;
+    --sidebar-border: 25 20% 22%;
+    --sidebar-ring: 142 50% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  .hero-gradient {
+    background: var(--gradient-hero);
+  }
+
+  .golden-gradient {
+    background: var(--gradient-golden);
+  }
+
+  .earth-gradient {
+    background: var(--gradient-earth);
+  }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .glass-card {
+    @apply backdrop-blur-md bg-card/80 border border-border/50;
+  }
+
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-hero);
+  }
+
+  .text-gradient-golden {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-golden);
+  }
+}
+
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+}

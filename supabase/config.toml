@@ -1,0 +1,22 @@
+project_id = "hbkuecxjsndnqjyrxcxj"
+
+[functions.recommend-machinery]
+verify_jwt = false
+
+[functions.send-sms]
+verify_jwt = false
+
+[functions.send-sms-fast2sms]
+enabled = true
+verify_jwt = true
+import_map = "./functions/send-sms-fast2sms/deno.json"
+entrypoint = "./functions/send-sms-fast2sms/index.ts"
+
+[functions.create-checkout-session]
+verify_jwt = false
+
+[functions.stripe-webhook]
+enabled = true
+verify_jwt = false
+import_map = "./functions/stripe-webhook/deno.json"
+entrypoint = "./functions/stripe-webhook/index.ts"
