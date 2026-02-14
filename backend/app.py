@@ -52,7 +52,12 @@ def health():
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        raw = request.json
+        raw = request.get_json(force=True)
+        if not raw:
+            return jsonify({
+                "success": False,
+                "error": "No JSON body received"
+            }), 400
         data = normalize_input(raw)
 
         features = [
