@@ -56,9 +56,7 @@ const Index = () => {
           state: data.state,
           crop: data.crop,
           soil: data.soil,
-          farmSize: data.farmSize.includes("1-5") ? "Small"
-                    : data.farmSize.includes("5-15") ? "Medium"
-                    : "Large",
+          farmSize: data.farmSize,
           budget: data.budget,
           waterSource: data.waterSource,
           stage: data.farmingStage,
