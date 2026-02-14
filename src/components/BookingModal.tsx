@@ -141,8 +141,9 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
     }
 
 
+      const origin = window.location.origin;
       const { data, error } = await supabase.functions.invoke(
-      "create-checkout-session",    
+      "create-checkout-session",
       {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -151,6 +152,8 @@ const BookingModal = ({ isOpen, onClose, machinery }: BookingModalProps) => {
           bookingId: bookingData.id,
           amount: bookingData.total_amount,
           machineryName: machinery.name,
+          successUrl: `${origin}/payment-success`,
+          cancelUrl: `${origin}/payment-cancelled`,
         },
       }
     );

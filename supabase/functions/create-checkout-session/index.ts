@@ -1,5 +1,11 @@
+// @ts-ignore - Deno URL import; valid at runtime in Supabase Edge Functions
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @ts-ignore - npm: specifier is valid in Deno's npm compatibility layer
 import Stripe from "npm:stripe";
+
+declare const Deno: {
+  env: { get(key: string): string | undefined };
+};
 
 console.log("🚀 Function file loaded");
 
@@ -39,11 +45,30 @@ serve(async (req) => {
     return new Response("Invalid JSON", { status: 400 });
   }
 
-  const { bookingId, amount, machineryName } = body;
+  const { bookingId, amount, machineryName, successUrl, cancelUrl } = body;
+
+  // Use PUBLIC_APP_URL from Supabase secrets (no localhost in code)
+  const baseUrl = Deno.env.get("PUBLIC_APP_URL");
+  const success = successUrl
+    ? `${successUrl}?booking_id=${bookingId}`
+    : baseUrl
+      ? `${baseUrl}/payment-success?booking_id=${bookingId}`
+      : null;
+  const cancel = cancelUrl ?? (baseUrl ? `${baseUrl}/payment-cancelled` : null);
+
+  if (!success || !cancel) {
+    console.error("❌ Missing redirect URLs: set PUBLIC_APP_URL in Supabase secrets or send successUrl/cancelUrl from client.");
+    return new Response(
+      JSON.stringify({ error: "Redirect URLs not configured. Set PUBLIC_APP_URL in Supabase Edge Function secrets." }),
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
 
   console.log("📦 bookingId:", bookingId);
   console.log("💰 amount:", amount);
   console.log("🚜 machineryName:", machineryName);
+  console.log("🔗 success_url:", success);
+  console.log("🔗 cancel_url:", cancel);
 
   try {
     console.log("💳 Creating Stripe session...");
@@ -66,8 +91,8 @@ serve(async (req) => {
       metadata: {
         booking_id: bookingId,
       },
-      success_url:  `http://localhost:8080/payment-success?booking_id=${bookingId}`,
-      cancel_url: `http://localhost:8080/payment-cancelled`,
+      success_url: success,
+      cancel_url: cancel,
     });
 
     console.log("✅ Stripe session created:", session.id);

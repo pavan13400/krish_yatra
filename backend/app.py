@@ -41,7 +41,7 @@ def safe_encode(encoder, value):
     if value in encoder.classes_:
         return encoder.transform([value])[0]
     # fallback to most common class
-    return encoder.transform([encoder.classes_[0]])[0]\
+    return encoder.transform([encoder.classes_[0]])[0]
 
 @app.route("/", methods=["GET"])
 def health():

@@ -24,3 +24,11 @@ dist-ssr
 .env
 .env.*
 supabase/.env
+
+# Capacitor / Android build outputs
+android/app/build
+android/build
+android/.gradle
+android/captures
+*.apk
+*.aab
