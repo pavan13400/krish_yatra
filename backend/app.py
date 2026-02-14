@@ -3,40 +3,37 @@ from flask_cors import CORS
 import joblib
 import numpy as np
 import warnings
+import os
+
 warnings.filterwarnings("ignore", category=UserWarning)
 
 app = Flask(__name__)
 CORS(app)
 
-model = joblib.load("crop_model.pkl")
-encoders = joblib.load("label_encoders.pkl")
+# Safe absolute paths (Render-friendly)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+model = joblib.load(os.path.join(BASE_DIR, "crop_model.pkl"))
+encoders = joblib.load(os.path.join(BASE_DIR, "label_encoders.pkl"))
 
 def normalize_input(data):
     return {
         "state": data.get("state", "").title(),
-
         "crop": data.get("crop", "").title(),
-
         "soil": data.get("soil", "").title(),
-
         "farm_size": (
             "Small" if "1-5" in data.get("farmSize", "")
             else "Medium" if "5-15" in data.get("farmSize", "")
             else "Large"
         ),
-
         "budget": data.get("budget", "").capitalize(),
-
         "water_source": (
             "Rainfed" if data.get("waterSource", "").lower() == "rainfed"
             else "Canal" if data.get("waterSource", "").lower() == "canal"
             else "Borewell"
         ),
-
         "stage": data.get("stage", "").title(),
-
         "irrigation": int(data.get("irrigation", 0)),
-
         "mechanization": data.get("mechanization", "Medium").capitalize()
     }
 
@@ -45,6 +42,7 @@ def safe_encode(encoder, value):
         return encoder.transform([value])[0]
     # fallback to most common class
     return encoder.transform([encoder.classes_[0]])[0]
+
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
@@ -111,4 +109,4 @@ def predict():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
