@@ -47,12 +47,22 @@ serve(async (req) => {
 
   const { bookingId, amount, machineryName, successUrl, cancelUrl } = body;
 
-  // Fallback base URL: set PUBLIC_APP_URL in Supabase secrets to your Vercel URL (e.g. https://your-app.vercel.app)
-  const baseUrl = Deno.env.get("PUBLIC_APP_URL") ?? "http://localhost:8080";
+  // Use PUBLIC_APP_URL from Supabase secrets (no localhost in code)
+  const baseUrl = Deno.env.get("PUBLIC_APP_URL");
   const success = successUrl
     ? `${successUrl}?booking_id=${bookingId}`
-    : `${baseUrl}/payment-success?booking_id=${bookingId}`;
-  const cancel = cancelUrl ?? `${baseUrl}/payment-cancelled`;
+    : baseUrl
+      ? `${baseUrl}/payment-success?booking_id=${bookingId}`
+      : null;
+  const cancel = cancelUrl ?? (baseUrl ? `${baseUrl}/payment-cancelled` : null);
+
+  if (!success || !cancel) {
+    console.error("❌ Missing redirect URLs: set PUBLIC_APP_URL in Supabase secrets or send successUrl/cancelUrl from client.");
+    return new Response(
+      JSON.stringify({ error: "Redirect URLs not configured. Set PUBLIC_APP_URL in Supabase Edge Function secrets." }),
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
 
   console.log("📦 bookingId:", bookingId);
   console.log("💰 amount:", amount);
