@@ -65,7 +65,7 @@ const Index = () => {
           irrigation: data.waterSource === "rainfed" ? 0 : 1,
           mechanization: "Medium"
       };
-
+      console.log("Backend URL:", import.meta.env.VITE_BACKEND_URL);
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/predict`, {
       method: "POST",
       headers: {
