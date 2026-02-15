@@ -24,6 +24,9 @@ const MyBookings = () => {
         start_date,
         time_slot,
         status,
+        total_amount,
+        farmer_phone,
+        notes,
         machinery:machinery_id (
           name,
           price,
@@ -62,23 +65,35 @@ const MyBookings = () => {
         <p className="text-muted-foreground">No bookings found.</p>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {bookings.map((booking) => (
-            <Card key={booking.id}>
-              <CardContent className="p-5 space-y-2">
-                <p className="font-semibold">
-                  🚜 Machine: {booking.machinery.name}
-                </p>
-                <p className="font-semibold"> Category : {booking.machinery.category} </p>
-                <p className="font-semibold"> Price : {booking.machinery.price} </p>
-                <p>📅 Date: {booking.start_date}</p>
-                <p>⏰ Time: {booking.time_slot}</p>
-                <p className="text-sm text-muted-foreground">
-                  📞 Phone: {booking.farmer_phone}
-                </p>
-                <p className="text-green-600 font-medium">Status: Confirmed</p>
-              </CardContent>
-            </Card>
-          ))}
+          {bookings.map((booking) => {
+            const machineName = booking.notes || booking.machinery?.name || "Machinery";
+            const priceDisplay =
+              booking.total_amount != null
+                ? `₹${booking.total_amount}`
+                : booking.machinery?.price ?? "—";
+            const categoryDisplay = booking.machinery?.category ?? "—";
+            return (
+              <Card key={booking.id}>
+                <CardContent className="p-5 space-y-2">
+                  <p className="font-semibold">
+                    🚜 Machine: {machineName}
+                  </p>
+                  <p className="font-semibold"> Category : {categoryDisplay} </p>
+                  <p className="font-semibold"> Price : {priceDisplay} </p>
+                  <p>📅 Date: {booking.start_date}</p>
+                  <p>⏰ Time: {booking.time_slot}</p>
+                  {booking.farmer_phone && (
+                    <p className="text-sm text-muted-foreground">
+                      📞 Phone: {booking.farmer_phone}
+                    </p>
+                  )}
+                  <p className="text-green-600 font-medium">
+                    Status: {booking.status ?? "Confirmed"}
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
