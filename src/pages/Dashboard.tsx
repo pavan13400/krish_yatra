@@ -28,10 +28,8 @@ interface Booking {
   status: string;
   total_amount: number | null;
   notes: string | null;
-  slots: {
-    date: string;
-    time_slot: string;
-  } | null;
+  time_slot: string;
+  machinery?: { name: string } | null;
 }
 
 const Dashboard = () => {
@@ -99,8 +97,8 @@ const Dashboard = () => {
         status,
         total_amount,
         notes,
-        machinery_id,
-        time_slot
+        time_slot,
+        machinery:machinery_id ( name )
       `)
       .eq("farmer_id", user.id)
       .order("created_at", { ascending: false })
@@ -291,15 +289,14 @@ const Dashboard = () => {
                     </div>
                     <div className="flex-1">
                       <h4 className="font-semibold text-foreground">
-                        {booking.slots?.date || "Machinery"}
+                        {booking.notes || booking.machinery?.name || "Machinery"}
                       </h4>
                       <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mt-1">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {/* {new Date(booking.start_date).toLocaleDateString()} - {new Date(booking.end_date).toLocaleDateString()} */}
-                          {booking.slots?.date} | {booking.slots?.time_slot}
+                          {booking.start_date} | {booking.time_slot}
                         </span>
-                        {booking.total_amount && (
+                        {booking.total_amount != null && (
                           <span>₹{booking.total_amount}</span>
                         )}
                       </div>
